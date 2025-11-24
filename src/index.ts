@@ -1,5 +1,6 @@
 import { Recorder } from "./core/recorder";
-import { MixRecorderEvent, RecordOptions } from "./interface/index";
+import { WebRecorder } from "./core/web-recorder";
+import { MimeType, MixRecorderEvent, RecordOptions } from "./interface/index";
 import { EventEmitter } from "./utils/event-emitter";
 
 
@@ -8,21 +9,67 @@ import { EventEmitter } from "./utils/event-emitter";
  */
 export class MixRecorder extends EventEmitter {
 
-  protected recorder = new Recorder();
+  protected recorder?: Recorder;
 
   constructor () {
     super();
+  }
+
+  support (type: MimeType): boolean {
+    switch (type) {
+      case MimeType.Audio_WebM:
+      case MimeType.Video_WebM:
+      case MimeType.Video_MP4:
+        return MediaRecorder.isTypeSupported(type);
+
+      // case MimeType.Wav:
+      // case MimeType.Pcm:
+      //   return !!MediaStreamTrackProcessor;
+
+
+      default:
+        break;
+    }
+    return false;
+  }
+
+  startRecord (mediaStream: MediaStream, options: RecordOptions): boolean {
+    this.stopRecord();
+
+
+    if (!this.support(options.mimeType)) {
+      return false; 
+    }
+
+    this.recorder = this.createRecorder(options);
+    if (!this.recorder) {
+      return false;
+    }
+
     this.recorder.on(MixRecorderEvent.Complete, (blob: Blob) => {
       this.emit(MixRecorderEvent.Complete, blob);
     })
-  }
-
-  startRecord (mediaStream: MediaStream, options: RecordOptions): void {
-    this.recorder.startRecord(mediaStream, options);
+    return this.recorder.startRecord(mediaStream, options);
   }
 
   stopRecord (): void {
-    this.recorder.stopRecord();
+    if (this.recorder) {
+      this.recorder.stopRecord();
+    }
+  }
+
+  protected createRecorder (options: RecordOptions): Recorder | undefined {
+
+    switch (options.mimeType) {
+      case MimeType.Audio_WebM:
+      case MimeType.Video_WebM:
+      case MimeType.Video_MP4:
+        return new WebRecorder();
+
+      default:
+        break;
+    }
+    return undefined;
   }
 }
 

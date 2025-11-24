@@ -5,21 +5,56 @@
 </head>
 <body>
   <script src="../dist/index.js"></script>
+  
+  <video style="width: 320; height: 240;" id="local_video"></video>
+  <video style="width: 320; height: 240;" id="record_video" controls></video>
+  <br/>
+  <button onclick="onStartClick()">start</button> <button onclick="onStopClick()">stop</button>
+  <br/>
+  <select id="select_mimetype">
+    <option>audio/webm</option>
+    <option>video/webm</option>
+    <option>video/mp4</option>
+  </select>
+  <button id="button_check">检查</button>
   <script>
+    const select_mimetype = document.getElementById("select_mimetype");
+    const button_check = document.getElementById("button_check");
+
     const recorder = new MixRecorder();
     recorder.on("complete", (blob) => {
       const url = URL.createObjectURL(blob);
       document.getElementById("record_video").src = url;
       document.getElementById("record_video").play();
     })
-    function onStartClick () {
-      // navigator.mediaDevices.getUserMedia({ audio: true, video: true}).then((mediastream) => {
-      //   const video = document.getElementById("local_video");
-      //   video.srcObject = mediastream;
-      //   video.play();
 
-      //   recorder.startRecord(mediastream);
-      // })
+    function onStartClick () {
+      const mimeType = select_mimetype.value;
+      const constraints = {};
+      if (mimeType === '') {
+        return;
+      }
+
+      switch (mimeType) {
+        case "wav":
+          constraints.audio = true;
+          break;
+
+        case "video/mp4":
+          constraints.audio = true;
+          constraints.video = true;
+          break;
+
+        default:
+          return;
+      }
+      navigator.mediaDevices.getUserMedia(constraints).then((mediastream) => {
+        const video = document.getElementById("local_video");
+        video.srcObject = mediastream;
+        video.play();
+
+        recorder.startRecord(mediastream, { mimeType: mimeType });
+      })
       
     }
 
@@ -27,10 +62,12 @@
       recorder.stopRecord();
     }
 
+    button_check.addEventListener('click', () => {
+      
+      const aa = recorder.support(select_mimetype.value);
+      console.log(select_mimetype.value, aa);
+    })
+    
   </script>
-  <video style="width: 320; height: 240;" id="local_video"></video>
-  <video style="width: 320; height: 240;" id="record_video"></video>
-  <br/>
-  <button onclick="onStartClick()">start</button> <button onclick="onStopClick()">stop</button>
 </body>
 
