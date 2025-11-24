@@ -1,4 +1,4 @@
-export const enum MimeType {
+export enum MimeType {
   Audio_WebM = 'audio/webm',
   Video_WebM = 'video/webm',
   Video_MP4 = 'video/mp4',
