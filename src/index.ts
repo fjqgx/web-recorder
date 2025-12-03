@@ -73,5 +73,7 @@ export class MixRecorder extends EventEmitter {
   }
 }
 
+export { MimeType };
+
 // @ts-ignore
 window.MixRecorder = MixRecorder;
