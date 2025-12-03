@@ -7,7 +7,7 @@ import { EventEmitter } from "./utils/event-emitter";
 /**
  * 前端录制工具
  */
-export class MixRecorder extends EventEmitter {
+class MixRecorder extends EventEmitter {
 
   protected recorder?: Recorder;
 
@@ -73,7 +73,7 @@ export class MixRecorder extends EventEmitter {
   }
 }
 
-export { MimeType };
+export { MixRecorder, MimeType };
 
 // @ts-ignore
 window.MixRecorder = MixRecorder;
